@@ -14,6 +14,7 @@ const axios = require("axios").default;
 const {
     version
 } = require('./package.json');
+const { argv } = require("process");
 /*According to this post(https://stackoverflow.com/questions/9153571/is-there-a-way-to-get-version-from-package-json-in-nodejs-code) 
                                            this is not a secure way to get the version number as the .json file may expose to client, but I didn't find any better solution, leave for improvement in the future*/
 // Globally declared regex for url, credit to Daveo @ https://stackoverflow.com/questions/3809401/what-is-a-good-regular-expression-to-match-a-url
@@ -21,7 +22,8 @@ var pattern = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1
 var urlRegex = new RegExp(pattern);
 // Set up CLI flags using yargs
 const options = yargs
-    .usage('Usage: linkedout [OPTION]... URL...\n' + '\nA tiny tool for checking link\'s availiablity')
+    .usage('Usage: linkedout <file> or linkedout [OPTION]...\n' + 
+    '\nA tiny tool for checking link\'s availiablity')
     .showHelpOnFail(false, 'Specify --help or -h for available options')
     .version('v', `linkedout ${version}`)
     .options({
@@ -42,6 +44,7 @@ const options = yargs
         }
 
     })
+    //.showHelp()
     .strictOptions() // Display showHelpOnFail message if a non-exist option is input
     .argv;
 //Main part of the program
@@ -50,6 +53,8 @@ if (options.file) {
     linkedInFile(options.file);
 } else if (options.address) {
     linkCheck(options.address);
+} else if (options._[0]) {
+    linkedInFile(options._[0])
 } else {
     yargs.showHelp();
 }
@@ -69,11 +74,11 @@ function printMsg(status, link) {
             console.log(chalk.green(link + chalk.bold('\t[GOOD! LINKED address still IN the world!]')));
             break;
         case 'bad':
-            console.log(chalk.red(link + chalk.bold(" [BAD! LINKED address is OUT of this dimension :(]")));
+            console.log(chalk.red(link + chalk.bold("\t[BAD! LINKED address is OUT of this dimension :(]")));
             break;
             //print the same message for other other status and codes that not 200\400\404 temperorily
         default:
-            console.log(chalk.grey(link + chalk.bold(" [UNKNOWN...you LINKED an address to Knowhere?]")));
+            console.log(chalk.grey(link + chalk.bold("\t[UNKNOWN...you LINKED an address to Knowhere?]")));
             break;
     }
 }
