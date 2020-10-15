@@ -5,9 +5,9 @@ A simple command-line tool helps you finding dead links
 ## Installation
 
 To use this tool, you need to have Node.js pre-installed in your computer.
-[Node.js](https://nodejs.org/en/download/) \
+[Node.js](https://nodejs.org/en/download/) 
 
-<img src="https://nodejs.org/static/images/logo.svg" width="200" height="100">
+<img src="https://nodejs.org//static/images/logos/nodejs-new-pantone-black.svg" width="200" height="100">
 
 After installed Node.js, open terminal. Execute command:
 ```bash
