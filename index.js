@@ -14,7 +14,6 @@ const axios = require("axios").default;
 const {
     version
 } = require('./package.json');
-const { argv } = require("process");
 /*According to this post(https://stackoverflow.com/questions/9153571/is-there-a-way-to-get-version-from-package-json-in-nodejs-code) 
                                            this is not a secure way to get the version number as the .json file may expose to client, but I didn't find any better solution, leave for improvement in the future*/
 // Globally declared regex for url, credit to Daveo @ https://stackoverflow.com/questions/3809401/what-is-a-good-regular-expression-to-match-a-url
@@ -22,7 +21,7 @@ var pattern = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1
 var urlRegex = new RegExp(pattern);
 // Set up CLI flags using yargs
 const options = yargs
-    .usage('Usage: linkedout <file> or linkedout [OPTION]...\n' + 
+    .usage('Usage: linkedout <file> or linkedout [OPTION]... - <file> is the path of the file\n' + 
     '\nA tiny tool for checking link\'s availiablity')
     .showHelpOnFail(false, 'Specify --help or -h for available options')
     .version('v', `linkedout ${version}`)
