@@ -53,6 +53,11 @@ https://jadach1201231188.wordpress.com/feed/    [GOOD! LINKED address still IN t
 http://blog.leapproject.ca/feed/ [UNKNOWN...you LINKED an address to Knowhere?]
 http://blog.leapproject.ca/feed/ [UNKNOWN...you LINKED an address to Knowhere?]
 ```
+Or, you can simply use:
+```bash
+$ linkedout ./test.html
+```
+It would do exactly the same.
 ### More
 
 If you want to know more function about the tool, you can simply execute ```linkedout``` in terminals or passing -h/--help to it:
