@@ -19,7 +19,19 @@ const {
 // Globally declared regex for url, credit to Daveo @ https://stackoverflow.com/questions/3809401/what-is-a-good-regular-expression-to-match-a-url
 var pattern = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gim;
 var urlRegex = new RegExp(pattern);
+
+var ignArr = ['empty']; //store ignore urls
+
 // Set up CLI flags using yargs
+
+/* GAMEPLAN:
+- if -i passed, take the argument that is the ignore file
+- then put the urls into an ignArr array
+- then compare the gotten urls to see if they match the ignArr array
+- ignore if they match
+*/
+
+
 const options = yargs
     .usage('Usage: linkedout <file> or linkedout [OPTION]... - <file> is the path of the file\n' + 
     '\nA tiny tool for checking link\'s availiablity')
@@ -40,15 +52,24 @@ const options = yargs
             alias: 'address',
             describe: 'Check if a single link is working',
             type: 'string'
-        }
-
+        },
+        'i': {
+            alias: 'ignore',
+            describe: 'Add path to file to ignore all urls in that file'
+        },
     })
     //.showHelp()
     .strictOptions() // Display showHelpOnFail message if a non-exist option is input
     .argv;
 //Main part of the program
 //TODO: Figure out how to use switch case properly here(or it's not applicable here?)
+
+
+
 if (options.file) {
+    if (options.ignore){
+        linkedInFile(options.ignore);
+    }
     linkedInFile(options.file);
 } else if (options.address) {
     linkCheck(options.address);
@@ -92,7 +113,7 @@ function printMsg(status, link) {
  * "localhost" link's message would always be the first line no matter where it is.
  */
 
-function linkCheck(link) {
+function linkCheck(link) { //TODO: check each link against ignore array
     axios.head(link) // only request headers
         .then(response => {
             if (response.status === 200)
@@ -120,6 +141,9 @@ function linkedInFile(file) {
     var readable = fs.createReadStream(file); //Requiring less resource than readFile()
     readable.setEncoding('utf8'); //Return string instead of Buffer
     readable.on('data', (chunky) => {
+        if (options.ignore && ignArr[0] === 'empty'){
+            //TODO: borrow code from my project to process the readstream and use chunky.match to make an array of ignore links
+        }
         let urlArr = chunky.match(urlRegex);
         urlArr.forEach(url => {
             linkCheck(url);
