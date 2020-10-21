@@ -12,38 +12,14 @@ const yargs = require("yargs"); //Used for displaying commmand-line help file
 const fs = require("fs");
 const axios = require("axios").default;
 const {
-    once
-} = require('events');
-const {
-    createReadStream
-} = require('fs');
-const {
-    createInterface
-} = require('readline');
-const {
-    argv,
     version
 } = require('./package.json');
-const { log } = require("console");
 /*According to this post(https://stackoverflow.com/questions/9153571/is-there-a-way-to-get-version-from-package-json-in-nodejs-code) 
                                            this is not a secure way to get the version number as the .json file may expose to client, but I didn't find any better solution, leave for improvement in the future*/
 // Globally declared regex for url, credit to Daveo @ https://stackoverflow.com/questions/3809401/what-is-a-good-regular-expression-to-match-a-url
 var pattern = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/gim;
 var urlRegex = new RegExp(pattern);
-
-var ignArr = []; //store ignore urls
-var newUrlArr = [];
-
 // Set up CLI flags using yargs
-
-/* GAMEPLAN:
-- if -i passed, take the argument that is the ignore file
-- then put the urls into an ignArr array
-- then compare the gotten urls to see if they match the ignArr array
-- ignore if they match
-*/
-
-
 const options = yargs
     .usage('Usage: linkedout <file> or linkedout [OPTION]... - <file> is the path of the file\n' + 
     '\nA tiny tool for checking link\'s availiablity')
@@ -64,50 +40,16 @@ const options = yargs
             alias: 'address',
             describe: 'Check if a single link is working',
             type: 'string'
-        },
-        'i': {
-            alias: 'ignore',
-            describe: 'Add path to file to ignore all urls in that file (linkedout -f <file> -i <ignore file>)'
-        },
+        }
+
     })
     //.showHelp()
     .strictOptions() // Display showHelpOnFail message if a non-exist option is input
     .argv;
 //Main part of the program
 //TODO: Figure out how to use switch case properly here(or it's not applicable here?)
-
-
-
 if (options.file) {
-    if (options.ignore){ // if ignore is pressed, we create a read stream that takes the ignore file and extracts good links from it
-        
-        (async function processLineByLine() {
-            try {
-                const rl = createInterface({ 
-                    input: createReadStream(options.ignore),
-                    crlfDelay: Infinity
-                });
-                rl.on('line', (line) => {
-                    if (line[0] !== '#') {
-                        if (line[0] === 'h') {
-                            ignArr.push(line);
-                        } else {
-                            rl.close();
-                        }
-                    }
-                });
-    
-                await once(rl, 'close');
-    
-            } catch (err) {
-                console.log('You probably entered an incorrect sequence of commands');
-                console.log('-i USAGE: <command> -f <file to find links in> -i <ignore file>');
-            }
-        })();
-        ignArr.forEach(ign => {
-            console.log(ign)
-        })
-   linkedInFile(options.file);
+    linkedInFile(options.file);
 } else if (options.address) {
     linkCheck(options.address);
 } else if (options._[0]) {
@@ -150,7 +92,7 @@ function printMsg(status, link) {
  * "localhost" link's message would always be the first line no matter where it is.
  */
 
-function linkCheck(link) { 
+function linkCheck(link) {
     axios.head(link) // only request headers
         .then(response => {
             if (response.status === 200)
@@ -178,18 +120,12 @@ function linkedInFile(file) {
     var readable = fs.createReadStream(file); //Requiring less resource than readFile()
     readable.setEncoding('utf8'); //Return string instead of Buffer
     readable.on('data', (chunky) => {
-        
         let urlArr = chunky.match(urlRegex);
-        if (options.ignore){ // if ignore is used, we loop through the ignore array and compare that to the array of links, removing links if they match
-            console.log(ignArr)
-            urlArr = urlArr.filter(url => !ignArr.includes(url));
-        }
         urlArr.forEach(url => {
             linkCheck(url);
-        })
+        });
     });
     readable.on('error', (err) => {
         console.log(err);
     });
-}
 }
